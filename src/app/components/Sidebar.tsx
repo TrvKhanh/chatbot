@@ -1,9 +1,34 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 
 const Sidebar: React.FC = () => {
+  const [open, setOpen] = useState(true);
+
+  if (!open) {
+    return (
+      <button
+        className="fixed top-6 left-2 z-50 p-1 rounded-full bg-white dark:bg-[#1C1C1C] shadow-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 transition"
+        onClick={() => setOpen(true)}
+        aria-label="Open sidebar"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-gray-700 dark:text-gray-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+        </svg>
+      </button>
+    );
+  }
+
   return (
-    <aside className="w-64 h-screen bg-white dark:bg-[#1C1C1C] border-r border-gray-200 dark:border-gray-700 flex flex-col">
+    <aside className="w-64 h-screen bg-white dark:bg-[#1C1C1C] border-r border-gray-200 dark:border-gray-700 flex flex-col relative transition-all duration-300">
+      <button
+        className="absolute -right-3 top-6 z-50 p-1 rounded-full bg-white dark:bg-[#1C1C1C] shadow-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 transition"
+        onClick={() => setOpen(false)}
+        aria-label="Close sidebar"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-gray-700 dark:text-gray-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+        </svg>
+      </button>
       {/* Main Navigation */}
       <nav className="flex-1 overflow-y-auto py-4">
         <div className="px-4 space-y-4">

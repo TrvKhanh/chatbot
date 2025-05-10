@@ -18,6 +18,13 @@ const Topbar: React.FC = () => {
         </div>
       </div>
       <button
+        className="ml-5 px-1 py-1 rounded-full bg-[#FF3399] text-white font-semibold shadow-lg hover:shadow-1xl transition-all duration-300 focus:outline-none ring-2 ring-pink-200 hover:ring-4 active:scale-95"
+        style={{ boxShadow: '0 2px 24px 0 rgba(255,51,153,0.4)' }}
+        aria-label="New chat"
+      >
+        New Chat
+      </button>
+      <button
         onClick={toggleTheme}
         className="ml-5 p-1 rounded-full bg-gradient-to-br from-yellow-300 via-white to-blue-400 dark:from-gray-700 dark:via-gray-900 dark:to-blue-900 shadow-lg hover:shadow-2xl ring-2 ring-white dark:ring-blue-900 transition-all duration-300 focus:outline-none"
         aria-label="Toggle dark mode"
