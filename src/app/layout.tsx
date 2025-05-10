@@ -9,7 +9,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "AI Chat Assistant",
+  title: "BigKai",
   description: "A modern AI chat interface",
 };
 
