@@ -4,23 +4,41 @@ import Sidebar from "./components/Sidebar";
 import Topbar from "./components/Topbar";
 import MainContent from "./components/MainContent";
 import ChatBox from "./components/ChatBox";
+import BlogContent from "./components/BlogContent";
 
 export default function Home() {
   const [showChat, setShowChat] = useState(false);
+  const [showBlog, setShowBlog] = useState(false);
   const [firstMessage, setFirstMessage] = useState<string | null>(null);
 
   const handleSendFirstMessage = (msg: string) => {
     setFirstMessage(msg);
     setShowChat(true);
+    setShowBlog(false);
   };
 
   return (
     <div className="min-h-screen h-screen bg-gray-100 dark:bg-gray-900 flex">
-      <Sidebar onShowChat={() => setShowChat(true)} onShowOverview={() => setShowChat(false)} />
+      <Sidebar
+        onShowChat={() => {
+          setShowChat(true);
+          setShowBlog(false);
+        }}
+        onShowOverview={() => {
+          setShowChat(false);
+          setShowBlog(false);
+        }}
+        onShowBlog={() => {
+          setShowBlog(true);
+          setShowChat(false);
+        }}
+      />
       <div className="flex-1 flex flex-col h-full">
         <Topbar />
-        <main className="flex-1 overflow-auto">
-          {!showChat ? (
+        <main className="flex-1 overflow-auto flex items-center justify-center">
+          {showBlog ? (
+            <BlogContent />
+          ) : !showChat ? (
             <MainContent onSendFirstMessage={handleSendFirstMessage} />
           ) : (
             <ChatBox initialMessage={firstMessage || undefined} />

@@ -1,13 +1,23 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 
+const aiFeatures = [
+  "Photo editing",
+  "Video generation",
+  "Audio generation",
+  "Code generation",
+];
+
 interface SidebarProps {
   onShowChat: () => void;
   onShowOverview: () => void;
+  onShowBlog: () => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ onShowChat, onShowOverview }) => {
+const Sidebar: React.FC<SidebarProps> = ({ onShowChat, onShowOverview, onShowBlog }) => {
   const [open, setOpen] = useState(true);
+  const [showAIFeatures, setShowAIFeatures] = useState(false);
+  const [selectedAIFeature, setSelectedAIFeature] = useState(aiFeatures[0]);
 
   if (!open) {
     return (
@@ -56,12 +66,16 @@ const Sidebar: React.FC<SidebarProps> = ({ onShowChat, onShowOverview }) => {
                 </button>
               </li>
               <li>
-                <Link href="/blog" className="flex items-center px-3 py-2 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+                <button
+                  type="button"
+                  onClick={onShowBlog}
+                  className="w-full flex items-center px-3 py-2 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+                >
                   <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21H5a2 2 0 01-2-2V7a2 2 0 012-2h14a2 2 0 012 2v12a2 2 0 01-2 2zM7 3v4m10-4v4M7 13h10M7 17h6" />
                   </svg>
                   Blog
-                </Link>
+                </button>
               </li>
             </ul>
           </div>
@@ -75,6 +89,36 @@ const Sidebar: React.FC<SidebarProps> = ({ onShowChat, onShowOverview }) => {
               <li>
                 <button
                   type="button"
+                  onClick={() => setShowAIFeatures(v => !v)}
+                  className="w-full flex items-center px-3 py-2 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+                >
+                  <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                  AI Dashboard
+                  <svg className={`w-4 h-4 ml-auto transition-transform ${showAIFeatures ? 'rotate-90' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+                {showAIFeatures && (
+                  <div className="mt-2 px-3 space-y-2">
+                    {aiFeatures.map(f => (
+                      <button
+                        key={f}
+                        type="button"
+                        onClick={() => setSelectedAIFeature(f)}
+                        className={`w-full text-left px-4 py-2 rounded-lg transition font-medium text-sm
+                          ${selectedAIFeature === f ? 'bg-blue-500 text-white shadow' : 'bg-gray-100 dark:bg-[#363636] text-gray-800 dark:text-gray-100 hover:bg-blue-100 dark:hover:bg-blue-900'}`}
+                      >
+                        {f}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </li>
+              <li>
+                <button
+                  type="button"
                   onClick={onShowChat}
                   className="w-full flex items-center px-3 py-2 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition"
                 >
@@ -83,14 +127,6 @@ const Sidebar: React.FC<SidebarProps> = ({ onShowChat, onShowOverview }) => {
                   </svg>
                   Chat
                 </button>
-              </li>
-              <li>
-                <Link href="/ai-dashboard" className="flex items-center px-3 py-2 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
-                  <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                  </svg>
-                  AI Dashboard
-                </Link>
               </li>
             </ul>
           </div>
