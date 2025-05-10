@@ -5,11 +5,13 @@ import Topbar from "./components/Topbar";
 import MainContent from "./components/MainContent";
 import ChatBox from "./components/ChatBox";
 import BlogContent from "./components/BlogContent";
+import BlogHeader from "./components/BlogHeader";
 
 export default function Home() {
   const [showChat, setShowChat] = useState(false);
   const [showBlog, setShowBlog] = useState(false);
   const [firstMessage, setFirstMessage] = useState<string | null>(null);
+  const [blogTab, setBlogTab] = useState<'about' | 'posts' | 'tags'>('about');
 
   const handleSendFirstMessage = (msg: string) => {
     setFirstMessage(msg);
@@ -35,9 +37,12 @@ export default function Home() {
       />
       <div className="flex-1 flex flex-col h-full">
         <Topbar />
-        <main className="flex-1 overflow-auto flex items-center justify-center">
+        <main className="flex-1 overflow-auto flex flex-col items-center justify-start">
           {showBlog ? (
-            <BlogContent />
+            <>
+              <BlogHeader tab={blogTab} setTab={setBlogTab} />
+              <BlogContent tab={blogTab} />
+            </>
           ) : !showChat ? (
             <MainContent onSendFirstMessage={handleSendFirstMessage} />
           ) : (
