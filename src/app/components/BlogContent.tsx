@@ -22,19 +22,34 @@ const socials = [
 ];
 
 const BlogContent: React.FC = () => (
-  <div className="flex flex-col items-center justify-center h-full w-full px-8 py-8">
-    <div className="text-4xl font-extrabold text-center mb-2 text-gray-800 dark:text-gray-100 mt-20">
-      Hi! I'm Tam Le
+  <div className="flex flex-col items-center justify-center h-full w-full py-8">
+    {/* Header */}
+    <div className="w-full flex items-center justify-between py-4 px-4 md:px-8 bg-white dark:bg-[#181818] select-none">
+      <div className="font-mono text-lg font-bold text-gray-900 dark:text-gray-100 flex items-center">
+        &gt; /home/incenger
+        <span className="ml-1 w-3 h-5 bg-pink-300 animate-pulse rounded-sm inline-block align-middle"></span>
+      </div>
+      <div className="flex gap-8 text-base">
+        <a href="#" className="text-gray-700 dark:text-gray-200 font-normal hover:text-pink-500 transition no-underline">About</a>
+        <a href="#" className="text-gray-700 dark:text-gray-200 font-normal hover:text-pink-500 transition no-underline">Posts</a>
+        <a href="#" className="text-gray-700 dark:text-gray-200 font-normal hover:text-pink-500 transition no-underline">Tags</a>
+      </div>
     </div>
-    <div className="text-gray-500 dark:text-gray-300 text-center mb-8 text-lg">
-      I write to think
-    </div>
-    <div className="flex gap-4 mb-8">
-      {socials.map((s, idx) => (
-        <a key={idx} href={s.href} target="_blank" rel="noopener noreferrer" className="hover:text-pink-500 transition">
-          {s.icon}
-        </a>
-      ))}
+    {/* Main content */}
+    <div className="flex flex-col items-center justify-center flex-1 w-full">
+      <div className="text-4xl font-extrabold text-center mb-2 text-gray-800 dark:text-gray-100 mt-10">
+        Hi! I'm Tam Le
+      </div>
+      <div className="text-gray-500 dark:text-gray-300 text-center mb-8 text-lg">
+        I write to think
+      </div>
+      <div className="flex gap-4 mb-8">
+        {socials.map((s, idx) => (
+          <a key={idx} href={s.href} target="_blank" rel="noopener noreferrer" className="hover:text-pink-500 transition">
+            {s.icon}
+          </a>
+        ))}
+      </div>
     </div>
   </div>
 );
