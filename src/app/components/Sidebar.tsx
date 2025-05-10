@@ -1,7 +1,12 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 
-const Sidebar: React.FC = () => {
+interface SidebarProps {
+  onShowChat: () => void;
+  onShowOverview: () => void;
+}
+
+const Sidebar: React.FC<SidebarProps> = ({ onShowChat, onShowOverview }) => {
   const [open, setOpen] = useState(true);
 
   if (!open) {
@@ -39,12 +44,16 @@ const Sidebar: React.FC = () => {
             </h2>
             <ul className="space-y-1">
               <li>
-                <Link href="/dashboard" className="flex items-center px-3 py-2 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+                <button
+                  type="button"
+                  onClick={onShowOverview}
+                  className="w-full flex items-center px-3 py-2 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+                >
                   <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                   </svg>
                   Overview
-                </Link>
+                </button>
               </li>
               <li>
                 <Link href="/blog" className="flex items-center px-3 py-2 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
@@ -64,12 +73,16 @@ const Sidebar: React.FC = () => {
             </h2>
             <ul className="space-y-1">
               <li>
-                <Link href="/chat" className="flex items-center px-3 py-2 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+                <button
+                  type="button"
+                  onClick={onShowChat}
+                  className="w-full flex items-center px-3 py-2 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+                >
                   <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
                   </svg>
                   Chat
-                </Link>
+                </button>
               </li>
               <li>
                 <Link href="/ai-dashboard" className="flex items-center px-3 py-2 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">

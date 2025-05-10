@@ -16,7 +16,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen h-screen bg-gray-100 dark:bg-gray-900 flex">
-      <Sidebar />
+      <Sidebar onShowChat={() => setShowChat(true)} onShowOverview={() => setShowChat(false)} />
       <div className="flex-1 flex flex-col h-full">
         <Topbar />
         <main className="flex-1 overflow-auto">
