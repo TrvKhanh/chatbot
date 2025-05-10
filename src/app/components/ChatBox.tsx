@@ -110,14 +110,14 @@ const ChatBox: React.FC<ChatBoxProps> = ({ onFirstMessage, sessionId, initialMes
   };
 
   return (
-    <div className="flex flex-col w-full h-full bg-gray-100 dark:bg-gray-900 rounded-2xl">
+    <div className="flex flex-col w-full h-full bg-gray-100 dark:bg-[#363636] rounded-2xl">
       <div className="flex-1 overflow-y-auto pr-2">
         {messages.map((msg) => (
           <ChatMessage key={msg.id} message={msg.content} isUser={msg.isUser} />
         ))}
         {loading && (
           <div className="flex justify-start my-2">
-            <div className="bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 px-4 py-2 rounded-2xl rounded-bl-none shadow-sm text-sm">
+            <div className="bg-gray-100 dark:bg-[#363636] text-gray-900 dark:text-gray-100 px-4 py-2 rounded-2xl rounded-bl-none shadow-sm text-sm">
               <span className="animate-pulse">Đang trả lời...</span>
             </div>
           </div>
@@ -126,7 +126,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({ onFirstMessage, sessionId, initialMes
       </div>
       <div className="mt-4 flex gap-2 p-2 pb-4 border-t">
         <textarea
-          className="flex-1 border border-gray-300 dark:border-gray-700 rounded-xl p-2 resize-none focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100"
+          className="flex-1 border border-gray-300 dark:border-gray-700 rounded-xl p-2 resize-none focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white dark:bg-[#363636] text-gray-900 dark:text-gray-100"
           rows={2}
           placeholder="Nhập tin nhắn..."
           value={input}

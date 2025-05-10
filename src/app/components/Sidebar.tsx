@@ -3,7 +3,7 @@ import Link from 'next/link';
 
 const Sidebar: React.FC = () => {
   return (
-    <aside className="w-64 h-screen bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col">
+    <aside className="w-64 h-screen bg-white dark:bg-[#1C1C1C] border-r border-gray-200 dark:border-gray-700 flex flex-col">
       {/* Main Navigation */}
       <nav className="flex-1 overflow-y-auto py-4">
         <div className="px-4 space-y-4">
