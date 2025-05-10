@@ -2,11 +2,11 @@ import React from 'react';
 import Link from 'next/link';
 
 interface SidebarProps {
-  theme: string;
-  setTheme: (theme: string) => void;
+  // theme: string;
+  // setTheme: (theme: string) => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ theme, setTheme }) => {
+const Sidebar: React.FC<SidebarProps> = ({}) => {
   return (
     <aside className="w-64 h-screen bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col">
       {/* Main Navigation */}

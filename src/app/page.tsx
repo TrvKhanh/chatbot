@@ -13,7 +13,6 @@ interface Session {
 
 export default function Home() {
   const { theme, setTheme } = useContext(ThemeContext);
-  const [showWorkspace, setShowWorkspace] = useState(false);
   const [sessions, setSessions] = useState<Session[]>([]);
   const [currentSessionId, setCurrentSessionId] = useState<string>("");
   const [showChat, setShowChat] = useState(false);
@@ -22,31 +21,22 @@ export default function Home() {
   const currentSession = sessions.find((s) => s.id === currentSessionId);
 
   // Khi gửi tin nhắn đầu tiên, tạo session mới và chuyển giao diện
-  const handleFirstMessage = (firstMsg: string) => {
-    const newId = Date.now().toString();
-    setSessions((prev) => [
-      ...prev,
-      { id: newId, title: firstMsg.slice(0, 20) + (firstMsg.length > 20 ? "..." : "") },
-    ]);
-    setCurrentSessionId(newId);
-    setShowWorkspace(true);
-    setFirstMessage(firstMsg);
-    setShowChat(true);
-  };
+  // const handleFirstMessage = (firstMsg: string) => {
+  //   const newId = Date.now().toString();
+  //   setSessions((prev) => [
+  //     ...prev,
+  //     { id: newId, title: firstMsg.slice(0, 20) + (firstMsg.length > 20 ? "..." : "") },
+  //   ]);
+  //   setCurrentSessionId(newId);
+  //   setShowWorkspace(true);
+  //   setFirstMessage(firstMsg);
+  //   setShowChat(true);
+  // };
 
   // Khi chọn session khác
-  const handleSelectSession = (id: string) => {
-    setCurrentSessionId(id);
-  };
-
-  const handleDeleteSession = (id: string) => {
-    setSessions((prev) => prev.filter((s) => s.id !== id));
-    if (currentSessionId === id) {
-      const next = sessions.find((s) => s.id !== id);
-      if (next) setCurrentSessionId(next.id);
-      else setShowWorkspace(false);
-    }
-  };
+  // const handleSelectSession = (id: string) => {
+  //   setCurrentSessionId(id);
+  // };
 
   const handleSendFirstMessage = (msg: string) => {
     setFirstMessage(msg);
@@ -55,7 +45,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen h-screen bg-gray-100 dark:bg-gray-900 flex">
-      <Sidebar theme={theme} setTheme={setTheme} />
+      <Sidebar />
       <div className="flex-1 flex flex-col h-full">
         <Topbar />
         <main className="flex-1 overflow-auto">

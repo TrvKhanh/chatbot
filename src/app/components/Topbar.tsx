@@ -1,15 +1,8 @@
 import React, { useState, useEffect } from 'react';
 
 const Topbar: React.FC = () => {
-  const [activeTab, setActiveTab] = useState('chat');
   const [darkMode, setDarkMode] = useState(false);
   const [mounted, setMounted] = useState(false);
-
-  const tabs = [
-    { id: 'chat', label: 'Chat' },
-    { id: 'dashboard', label: 'Dashboard' },
-    { id: 'analytics', label: 'Analytics' },
-  ];
 
   useEffect(() => {
     setMounted(true);

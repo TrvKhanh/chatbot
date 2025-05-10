@@ -31,7 +31,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({ onFirstMessage, sessionId, initialMes
     setHasSentFirst(false);
     messageCounterRef.current = 0;
     if (initialMessage) {
-      sendMessage(initialMessage, true);
+      sendMessage(initialMessage);
     }
     // eslint-disable-next-line
   }, [sessionId]);
@@ -41,7 +41,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({ onFirstMessage, sessionId, initialMes
     return `msg-${messageCounterRef.current}`;
   };
 
-  const sendMessage = async (msg?: string, isInit?: boolean) => {
+  const sendMessage = async (msg?: string) => {
     const content = typeof msg === 'string' ? msg : input;
     if (!content.trim()) return;
 
