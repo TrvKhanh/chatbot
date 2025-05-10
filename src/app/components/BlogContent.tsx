@@ -25,7 +25,7 @@ const BlogContent: React.FC = () => {
       ) : (
         <div className="flex flex-col items-center justify-center flex-1 w-full">
           <div className="text-4xl font-extrabold text-center mb-2 text-gray-800 dark:text-gray-100 mt-10">
-            Hi! I'm Khanh
+            Hi! I&apos;m Khanh
           </div>
           <div className="text-gray-500 dark:text-gray-300 text-center mb-8 text-lg">
             I write to think
