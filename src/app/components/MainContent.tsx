@@ -57,7 +57,7 @@ const MainContent: React.FC<MainContentProps> = ({ onSendFirstMessage }) => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center h-full w-full px-8 py-8 bg-white dark:bg-[#363636]">
+    <div className="flex flex-col items-center justify-center h-full w-full px-8 py-8 bg-gray-100 dark:bg-[#363636]">
       <div className="text-4xl font-extrabold text-center mb-2 text-gray-800 dark:text-gray-100">
         May I help you?
       </div>
