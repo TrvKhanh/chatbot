@@ -12,13 +12,12 @@ interface Session {
 }
 
 export default function Home() {
-  const { theme, setTheme } = useContext(ThemeContext);
-  const [sessions, setSessions] = useState<Session[]>([]);
-  const [currentSessionId, setCurrentSessionId] = useState<string>("");
+  // const { theme, setTheme } = useContext(ThemeContext);
+  // const [sessions, setSessions] = useState<Session[]>([]);
+  // const [currentSessionId, setCurrentSessionId] = useState<string>("");
+  // const currentSession = sessions.find((s) => s.id === currentSessionId);
   const [showChat, setShowChat] = useState(false);
   const [firstMessage, setFirstMessage] = useState<string | null>(null);
-
-  const currentSession = sessions.find((s) => s.id === currentSessionId);
 
   // Khi gửi tin nhắn đầu tiên, tạo session mới và chuyển giao diện
   // const handleFirstMessage = (firstMsg: string) => {
