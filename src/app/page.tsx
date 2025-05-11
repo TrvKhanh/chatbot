@@ -36,7 +36,11 @@ export default function Home() {
         }}
       />
       <div className="flex-1 flex flex-col h-full">
-        <Topbar />
+        <Topbar onNewChat={() => {
+          setShowChat(true);
+          setShowBlog(false);
+          setFirstMessage(null);
+        }} />
         <main className="flex-1 overflow-auto flex flex-col items-center justify-start">
           {showBlog ? (
             <>
@@ -46,7 +50,7 @@ export default function Home() {
           ) : !showChat ? (
             <MainContent onSendFirstMessage={handleSendFirstMessage} />
           ) : (
-            <ChatBox initialMessage={firstMessage || undefined} />
+            <ChatBox initialMessage={firstMessage || undefined} onInitialMessageHandled={() => setFirstMessage(null)} />
           )}
         </main>
       </div>

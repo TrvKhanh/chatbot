@@ -1,7 +1,11 @@
 import React, { useContext } from 'react';
 import { ThemeContext } from '../ThemeProvider';
 
-const Topbar: React.FC = () => {
+interface TopbarProps {
+  onNewChat?: () => void;
+}
+
+const Topbar: React.FC<TopbarProps> = ({ onNewChat }) => {
   const { theme, setTheme } = useContext(ThemeContext);
 
   const toggleTheme = () => {
@@ -21,6 +25,7 @@ const Topbar: React.FC = () => {
         className="ml-5 px-1 py-1 rounded-full bg-[#FF3399] text-white font-semibold shadow-lg hover:shadow-1xl transition-all duration-300 focus:outline-none ring-2 ring-pink-200 hover:ring-4 active:scale-95"
         style={{ boxShadow: '0 2px 24px 0 rgba(255,51,153,0.4)' }}
         aria-label="New chat"
+        onClick={onNewChat}
       >
         New Chat
       </button>

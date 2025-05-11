@@ -9,36 +9,95 @@ interface Message {
 
 interface ChatBoxProps {
   onFirstMessage?: (msg: string) => void;
-  sessionId?: string;
   initialMessage?: string;
+  externalMessage?: string | null;
+  onExternalMessageHandled?: () => void;
+  onInitialMessageHandled?: () => void;
 }
 
-const ChatBox: React.FC<ChatBoxProps> = ({ onFirstMessage, sessionId, initialMessage }) => {
+const ChatBox: React.FC<ChatBoxProps> = ({ onFirstMessage, initialMessage, externalMessage, onExternalMessageHandled, onInitialMessageHandled }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [hasSentFirst, setHasSentFirst] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messageCounterRef = useRef(0);
+  const hasSentInitialRef = useRef(false);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
   useEffect(() => {
-    setMessages([]);
+    if (!initialMessage) {
+      setMessages([]);
+    }
     setInput('');
     setHasSentFirst(false);
     messageCounterRef.current = 0;
-    if (initialMessage) {
-      sendMessage(initialMessage);
+    // eslint-disable-next-line
+  }, []);
+
+  useEffect(() => {
+    if (externalMessage) {
+      sendMessage(externalMessage);
+      if (onExternalMessageHandled) onExternalMessageHandled();
     }
     // eslint-disable-next-line
-  }, [sessionId]);
+  }, [externalMessage]);
+
+  useEffect(() => {
+    if (initialMessage && !hasSentInitialRef.current) {
+      console.log('Initial message:', initialMessage);
+      // Thêm tin nhắn người dùng vào khung chat và reset messages
+      const userMsg: Message = {
+        id: generateMessageId(),
+        content: initialMessage,
+        isUser: true,
+      };
+      setMessages([userMsg]); // Reset messages chỉ với tin nhắn đầu tiên của user
+      setLoading(true);
+
+      // Gửi request đến backend
+      fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ message: initialMessage }),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: generateMessageId(),
+              content: data.response,
+              isUser: false,
+            },
+          ]);
+        })
+        .catch(() => {
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: generateMessageId(),
+              content: 'Xin lỗi, đã có lỗi xảy ra. Vui lòng thử lại sau.',
+              isUser: false,
+            },
+          ]);
+        })
+        .finally(() => setLoading(false));
+
+      if (onInitialMessageHandled) onInitialMessageHandled();
+      hasSentInitialRef.current = true;
+    }
+    // eslint-disable-next-line
+  }, [initialMessage]);
 
   const generateMessageId = () => {
     messageCounterRef.current += 1;
-    return `msg-${messageCounterRef.current}`;
+    return `msg-${Date.now()}-${messageCounterRef.current}`;
   };
 
   const sendMessage = async (msg?: string) => {
@@ -66,8 +125,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({ onFirstMessage, sessionId, initialMes
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          message: content,
-          sessionId: sessionId || 'default',
+          message: content
         }),
       });
 
@@ -118,7 +176,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({ onFirstMessage, sessionId, initialMes
         {loading && (
           <div className="flex justify-start my-2">
             <div className="bg-gray-100 dark:bg-[#363636] text-gray-900 dark:text-gray-100 px-4 py-2 rounded-2xl rounded-bl-none shadow-sm text-sm">
-              <span className="animate-pulse">Đang trả lời...</span>
+              <AnimatedDotsLoading />
             </div>
           </div>
         )}
@@ -144,6 +202,16 @@ const ChatBox: React.FC<ChatBoxProps> = ({ onFirstMessage, sessionId, initialMes
           </svg>
         </button>
       </div>
+    </div>
+  );
+};
+
+const AnimatedDotsLoading = () => {
+  return (
+    <div className="flex items-center justify-center h-6">
+      <span className="inline-block w-2 h-2 mx-1 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: '0s' }}></span>
+      <span className="inline-block w-2 h-2 mx-1 rounded-full bg-gray-500 animate-bounce" style={{ animationDelay: '0.15s' }}></span>
+      <span className="inline-block w-2 h-2 mx-1 rounded-full bg-gray-600 animate-bounce" style={{ animationDelay: '0.3s' }}></span>
     </div>
   );
 };

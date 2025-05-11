@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 
 export async function POST(request: Request) {
   try {
-    const { message, sessionId } = await request.json();
+    const { message } = await request.json();
 
     // Make request to backend
     const response = await fetch('http://localhost:8000/chat', {
@@ -10,10 +10,7 @@ export async function POST(request: Request) {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        message,
-        session_id: sessionId,
-      }),
+      body: JSON.stringify({ message }),
     });
 
     if (!response.ok) {
