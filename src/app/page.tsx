@@ -11,7 +11,7 @@ export default function Home() {
   const [showChat, setShowChat] = useState(false);
   const [showBlog, setShowBlog] = useState(false);
   const [firstMessage, setFirstMessage] = useState<string | null>(null);
-  const [blogTab, setBlogTab] = useState<'about' | 'posts' | 'tags'>('about');
+  const [blogTab, setBlogTab] = useState<'about' | 'posts' | 'tags' | 'portfolio'>('about');
 
   const handleSendFirstMessage = (msg: string) => {
     setFirstMessage(msg);

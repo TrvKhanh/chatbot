@@ -1,13 +1,13 @@
 import React from 'react';
 
 interface BlogHeaderProps {
-  tab: 'about' | 'posts' | 'tags';
-  setTab: (tab: 'about' | 'posts' | 'tags') => void;
+  tab: 'about' | 'posts' | 'tags' | 'portfolio';
+  setTab: (tab: 'about' | 'posts' | 'tags' | 'portfolio') => void;
 }
 
 const BlogHeader: React.FC<BlogHeaderProps> = ({ tab, setTab }) => (
   <div className="w-full flex items-center justify-between py-4 px-4 md:px-8 bg-white dark:bg-[#181818] select-none sticky top-30 z-20">
-    <div className="font-mono text-lg font-bold text-gray-900 dark:text-gray-100 flex items-center">
+    <div className="font-mono text-lg font-bold text-gray-900 dark:text-gray-100 flex items-center cursor-pointer" onClick={() => setTab('tags')}>
       &gt; /home/incenger
       <span className="ml-1 w-3 h-5 bg-pink-300 animate-pulse rounded-sm inline-block align-middle"></span>
     </div>
@@ -30,6 +30,14 @@ const BlogHeader: React.FC<BlogHeaderProps> = ({ tab, setTab }) => (
       >
         Tags
       </button>
+      <a
+        href="https://tranvankhanh.netlify.app/"
+        target="_blank"
+        rel="noopener noreferrer"
+        className={`text-gray-700 dark:text-gray-200 font-bold hover:text-pink-500 transition no-underline focus:outline-none ${tab === 'portfolio' ? 'text-pink-500' : ''}`}
+      >
+        Portfolio
+      </a>
     </div>
   </div>
 );
