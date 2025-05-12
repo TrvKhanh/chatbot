@@ -17,22 +17,35 @@ const PostList: React.FC = () => {
   const [password, setPassword] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const passwordInputRef = useRef<HTMLInputElement>(null);
-  const [createdPosts, setCreatedPosts] = useState<{id: string, title: string, content: string, date: string, tags?: string}[]>([]);
+  const [createdPosts, setCreatedPosts] = useState<{_id?: string, id: string, title: string, content: string, date: string, tags?: string}[]>([]);
   const [title, setTitle] = useState('');
   const [markdown, setMarkdown] = useState('');
   const [tags, setTags] = useState<string[]>([]);
   const [pendingAction, setPendingAction] = useState<null | 'edit' | 'delete'>(null);
-  const [editingPost, setEditingPost] = useState<{id: string, title: string, content: string, date: string, tags?: string} | null>(null);
+  const [editingPost, setEditingPost] = useState<{_id?: string, id: string, title: string, content: string, date: string, tags?: string} | null>(null);
 
   useEffect(() => {
     fetch('/api/posts')
       .then(res => res.json())
-      .then(data => setCreatedPosts(data));
+      .then(data => {
+        if (Array.isArray(data)) {
+          setCreatedPosts(data);
+        } else {
+          setCreatedPosts([]);
+          // Optionally: console.error('API error:', data.error);
+        }
+      });
   }, []);
 
   // Helper: Nhóm bài viết theo năm
-  const postsByYear = createdPosts.reduce((acc: Record<string, {id: string, title: string, content: string, date: string, tags?: string}[]>, post: {id: string, title: string, content: string, date: string, tags?: string}) => {
-    const year = new Date(post.date).getFullYear();
+  const postsByYear = createdPosts.reduce((acc: Record<string, {_id?: string, id: string, title: string, content: string, date: string, tags?: string}[]>, post: {_id?: string, id: string, title: string, content: string, date: string, tags?: string}) => {
+    let year: string | number = '';
+    if (post.date) {
+      const d = new Date(post.date);
+      year = isNaN(d.getFullYear()) ? 'unknown' : d.getFullYear();
+    } else {
+      year = 'unknown';
+    }
     if (!acc[year]) acc[year] = [];
     acc[year].push(post);
     return acc;
@@ -77,7 +90,7 @@ const PostList: React.FC = () => {
   }
 
   if (showPreview) {
-    const headings = extractHeadings(showPreview.content);
+    const headings = extractHeadings(showPreview.content || '');
     return (
       <div className="w-full min-h-[60vh] flex flex-col items-center pt-6 pb-12 bg-gray-100 dark:bg-[#363636]">
         <div className="max-w-6xl w-full bg-white dark:bg-[#23232a] rounded-2xl shadow-lg p-8 sm:p-16 relative">
@@ -205,6 +218,12 @@ const PostList: React.FC = () => {
         });
         setCreatedPosts(prev => prev.filter(post => post.id !== showPreview.id));
         setShowPreview(null);
+      } else {
+        // Trường hợp tạo mới bài viết
+        setShowEditor(true);
+        setTitle('');
+        setMarkdown('');
+        setTags([]);
       }
       setPendingAction(null);
     } else {
@@ -272,12 +291,12 @@ const PostList: React.FC = () => {
         ) : (
           <div className="space-y-10">
             {sortedYears.map(year => (
-              <div key={year} className="flex gap-8">
+              <div key={year !== 'unknown' ? year : `unknown-${Math.random()}`} className="flex gap-8">
                 <div className="min-w-[70px] text-2xl font-bold text-gray-400 pt-2 text-right select-none font-sans">{year}</div>
                 <ul className="flex-1 w-full">
                   {postsByYear[year].map((post) => (
                     <li
-                      key={post.title + post.date}
+                      key={post._id ?? post.id ?? post.title + post.date}
                       className="flex items-center group cursor-pointer py-2 border-0 border-b border-dotted border-gray-300 dark:border-gray-700 transition"
                     >
                       <span
@@ -286,7 +305,7 @@ const PostList: React.FC = () => {
                       >
                         {post.title}
                       </span>
-                      <span className="text-sm text-gray-400 font-sans ml-4 min-w-[60px] text-right">{new Date(post.date).toLocaleString('en-US', { month: 'short', day: 'numeric' })}</span>
+                      <span className="text-sm text-gray-400 font-sans ml-4 min-w-[60px] text-right">{post.date ? new Date(post.date).toLocaleString('en-US', { month: 'short', day: 'numeric' }) : ''}</span>
                     </li>
                   ))}
                 </ul>

@@ -1,36 +1,77 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import clientPromise from '@/app/utils/mongodb';
+import { ObjectId } from 'mongodb';
 
 // Lấy danh sách bài viết
 export async function GET() {
-  const posts = await prisma.post.findMany({ orderBy: { date: 'desc' } });
-  return NextResponse.json(posts);
+  try {
+    const client = await clientPromise;
+    const db = client.db('bigk');
+    const posts = await db.collection('posts').find({}).sort({ date: -1 }).toArray();
+    return NextResponse.json(posts);
+  } catch (error) {
+    return NextResponse.json({ error: (error as Error).message }, { status: 500 });
+  }
 }
 
 // Thêm bài viết mới
 export async function POST(req: NextRequest) {
-  const { title, content, tags } = await req.json();
-  const post = await prisma.post.create({
-    data: { title, content, tags: tags.join(',') }
-  });
-  return NextResponse.json(post);
+  try {
+    const { title, content, tags } = await req.json();
+    const client = await clientPromise;
+    const db = client.db('bigk');
+    const post = {
+      title,
+      content,
+      tags: Array.isArray(tags) ? tags : (typeof tags === 'string' ? tags.split(',') : []),
+      date: new Date()
+    };
+    const result = await db.collection('posts').insertOne(post);
+    return NextResponse.json({ ...post, _id: result.insertedId });
+  } catch (error) {
+    return NextResponse.json({ error: (error as Error).message }, { status: 500 });
+  }
 }
 
 // Sửa bài viết
 export async function PUT(req: NextRequest) {
-  const { id, title, content, tags } = await req.json();
-  const post = await prisma.post.update({
-    where: { id },
-    data: { title, content, tags: tags.join(',') }
-  });
-  return NextResponse.json(post);
+  try {
+    const { id, title, content, tags } = await req.json();
+    const client = await clientPromise;
+    const db = client.db('bigk');
+    const filter = ObjectId.isValid(id) ? { _id: new ObjectId(id) } : { id };
+    const update = {
+      $set: {
+        title,
+        content,
+        tags: Array.isArray(tags) ? tags : (typeof tags === 'string' ? tags.split(',') : [])
+      }
+    };
+    const result = await db.collection('posts').findOneAndUpdate(
+      filter,
+      update,
+      { returnDocument: 'after' }
+    );
+    if (!result || !result.value) {
+      return NextResponse.json({ error: 'Post not found' }, { status: 404 });
+    }
+    return NextResponse.json(result.value);
+  } catch (error) {
+    return NextResponse.json({ error: (error as Error).message }, { status: 500 });
+  }
 }
 
 // Xoá bài viết
 export async function DELETE(req: NextRequest) {
-  const { id } = await req.json();
-  await prisma.post.delete({ where: { id } });
-  return NextResponse.json({ success: true });
+  try {
+    const { id } = await req.json();
+    const client = await clientPromise;
+    const db = client.db('bigk');
+    // Nếu id là ObjectId hợp lệ, xóa theo _id, nếu không thì xóa theo id
+    const filter = ObjectId.isValid(id) ? { _id: new ObjectId(id) } : { id };
+    await db.collection('posts').deleteOne(filter);
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    return NextResponse.json({ error: (error as Error).message }, { status: 500 });
+  }
 } 
