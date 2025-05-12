@@ -3,12 +3,20 @@ import AboutContent from './AboutContent';
 import PostList from './PostList';
 
 interface BlogContentProps {
-  tab: 'about' | 'posts' | 'tags' | 'portfolio';
+  tab: 'about' | 'posts' | 'tags' | 'portfolio' | 'incenger';
 }
 
 const BlogContent: React.FC<BlogContentProps> = ({ tab }) => {
+  if (tab === 'incenger') {
+    return (
+      <div className="flex flex-col items-center justify-center h-full w-full bg-gray-100 dark:bg-[#363636]">
+        <h1 className="text-5xl font-semibold text-center mb-4 text-gray-800 dark:text-gray-100 mt-2">Hi! I&apos;m Khanh</h1>
+        <p className="text-lg text-center text-gray-600 dark:text-gray-300">I write to think</p>
+      </div>
+    );
+  }
   return (
-    <div className="flex flex-col items-center justify-center h-full w-full">
+    <div className="flex flex-col items-center justify-center h-full w-full bg-gray-100 dark:bg-[#363636]">
       {tab === 'about' ? (
         <AboutContent />
       ) : tab === 'posts' ? (

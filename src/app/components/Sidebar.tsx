@@ -1,4 +1,7 @@
+"use client";
+
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 const aiFeatures = [
   "Photo editing",
@@ -7,16 +10,11 @@ const aiFeatures = [
   "Code generation",
 ];
 
-interface SidebarProps {
-  onShowChat: () => void;
-  onShowOverview: () => void;
-  onShowBlog: () => void;
-}
-
-const Sidebar: React.FC<SidebarProps> = ({ onShowChat, onShowOverview, onShowBlog }) => {
+const Sidebar: React.FC = () => {
   const [open, setOpen] = useState(true);
   const [showAIFeatures, setShowAIFeatures] = useState(false);
   const [selectedAIFeature, setSelectedAIFeature] = useState(aiFeatures[0]);
+  const router = useRouter();
 
   if (!open) {
     return (
@@ -55,7 +53,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onShowChat, onShowOverview, onShowBlo
               <li>
                 <button
                   type="button"
-                  onClick={onShowOverview}
+                  onClick={() => router.push('/overview')}
                   className="w-full flex items-center px-3 py-2 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition"
                 >
                   <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -67,7 +65,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onShowChat, onShowOverview, onShowBlo
               <li>
                 <button
                   type="button"
-                  onClick={onShowBlog}
+                  onClick={() => router.push('/blog')}
                   className="w-full flex items-center px-3 py-2 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition"
                 >
                   <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -118,7 +116,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onShowChat, onShowOverview, onShowBlo
               <li>
                 <button
                   type="button"
-                  onClick={onShowChat}
+                  onClick={() => router.push('/chat')}
                   className="w-full flex items-center px-3 py-2 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition"
                 >
                   <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
