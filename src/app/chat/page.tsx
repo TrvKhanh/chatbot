@@ -13,6 +13,6 @@ export default function ChatPage() {
 
 function ChatPageInner() {
   const searchParams = useSearchParams();
-  const initialMessage = searchParams.get("msg") || undefined;
+  const initialMessage = searchParams?.get("msg") || undefined;
   return <ChatBox initialMessage={initialMessage} />;
 } 

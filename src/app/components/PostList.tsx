@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
 import MdEditor from 'react-markdown-editor-lite';
@@ -9,36 +9,54 @@ import rehypeSlug from 'rehype-slug';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import 'katex/dist/katex.min.css';
+import useSWR from 'swr';
+import { Post, PostsResponse } from '../types';
+import { fetchPosts, createPost, updatePost } from '../utils/api';
+
+const POSTS_PER_PAGE = 10;
 
 const PostList: React.FC = () => {
-  const [showPreview, setShowPreview] = useState<{id: string, title: string, content: string, date: string, tags?: string} | null>(null);
+  const [page, setPage] = useState(1);
+  const [showPreview, setShowPreview] = useState<Post | null>(null);
   const [showEditor, setShowEditor] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [password, setPassword] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const passwordInputRef = useRef<HTMLInputElement>(null);
-  const [createdPosts, setCreatedPosts] = useState<{_id?: string, id: string, title: string, content: string, date: string, tags?: string}[]>([]);
   const [title, setTitle] = useState('');
   const [markdown, setMarkdown] = useState('');
   const [tags, setTags] = useState<string[]>([]);
   const [pendingAction, setPendingAction] = useState<null | 'edit' | 'delete'>(null);
-  const [editingPost, setEditingPost] = useState<{_id?: string, id: string, title: string, content: string, date: string, tags?: string} | null>(null);
+  const [editingPost, setEditingPost] = useState<Post | null>(null);
 
-  useEffect(() => {
-    fetch('/api/posts')
-      .then(res => res.json())
-      .then(data => {
-        if (Array.isArray(data)) {
-          setCreatedPosts(data);
-        } else {
-          setCreatedPosts([]);
-          // Optionally: console.error('API error:', data.error);
-        }
-      });
-  }, []);
+  // SWR hook for fetching posts
+  const { data, error, isLoading, mutate } = useSWR<PostsResponse>(
+    `/api/posts?page=${page}&limit=${POSTS_PER_PAGE}`,
+    () => fetchPosts(page, POSTS_PER_PAGE),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      dedupingInterval: 60000, // Cache for 1 minute
+    }
+  );
+
+  // Infinite scroll observer
+  const observer = useRef<IntersectionObserver | undefined>(undefined);
+  const lastPostElementRef = useCallback((node: HTMLElement | null) => {
+    if (isLoading) return;
+    if (observer.current) observer.current.disconnect();
+    
+    observer.current = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting && data?.hasMore) {
+        setPage(prevPage => prevPage + 1);
+      }
+    });
+    
+    if (node) observer.current.observe(node);
+  }, [isLoading, data?.hasMore, setPage]);
 
   // Helper: Nhóm bài viết theo năm
-  const postsByYear = createdPosts.reduce((acc: Record<string, {_id?: string, id: string, title: string, content: string, date: string, tags?: string}[]>, post: {_id?: string, id: string, title: string, content: string, date: string, tags?: string}) => {
+  const postsByYear = data?.posts.reduce((acc: Record<string, Post[]>, post: Post) => {
     let year: string | number = '';
     if (post.date) {
       const d = new Date(post.date);
@@ -49,8 +67,24 @@ const PostList: React.FC = () => {
     if (!acc[year]) acc[year] = [];
     acc[year].push(post);
     return acc;
-  }, {});
+  }, {}) || {};
+
   const sortedYears = Object.keys(postsByYear).sort((a, b) => Number(b) - Number(a));
+
+  // Loading skeleton component
+  const LoadingSkeleton = () => (
+    <div className="space-y-4">
+      {[...Array(3)].map((_, i) => (
+        <div key={i} className="animate-pulse">
+          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
+          <div className="space-y-3 mt-4">
+            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
+            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-5/6"></div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
 
   useEffect(() => {
     if (showPreview) {
@@ -91,6 +125,15 @@ const PostList: React.FC = () => {
 
   if (showPreview) {
     const headings = extractHeadings(showPreview.content || '');
+    if (showPreview.tags) {
+      if (Array.isArray(showPreview.tags)) {
+        setTags(showPreview.tags);
+      } else if (typeof showPreview.tags === 'string') {
+        setTags(String(showPreview.tags).split(',').map(t => t.trim()).filter(Boolean));
+      }
+    } else {
+      setTags([]);
+    }
     return (
       <div className="w-full min-h-[60vh] flex flex-col items-center pt-6 pb-12 bg-gray-100 dark:bg-[#363636]">
         <div className="max-w-6xl w-full bg-white dark:bg-[#23232a] rounded-2xl shadow-lg p-8 sm:p-16 relative">
@@ -132,13 +175,14 @@ const PostList: React.FC = () => {
           </div>
           {showPreview.tags && (
             <div className="mb-2 flex flex-wrap gap-2">
-              {typeof showPreview.tags === 'string'
-                ? showPreview.tags.split(',').map(tag => (
-                    <span key={tag} className="inline-block bg-pink-100 text-pink-700 dark:bg-pink-900 dark:text-pink-200 px-3 py-1 rounded-full text-xs font-semibold">#{tag.trim()}</span>
-                  ))
-                : (showPreview.tags as string[]).map((tag: string) => (
-                    <span key={tag} className="inline-block bg-pink-100 text-pink-700 dark:bg-pink-900 dark:text-pink-200 px-3 py-1 rounded-full text-xs font-semibold">#{tag.trim()}</span>
-                  ))}
+              {(Array.isArray(showPreview.tags) 
+                ? showPreview.tags 
+                : String(showPreview.tags).split(',')
+              ).map(tag => (
+                <span key={tag} className="inline-block bg-pink-100 text-pink-700 dark:bg-pink-900 dark:text-pink-200 px-3 py-1 rounded-full text-xs font-semibold">
+                  #{tag.trim()}
+                </span>
+              ))}
             </div>
           )}
           <div className="text-sm text-gray-400 mb-4">{showPreview.date}</div>
@@ -207,16 +251,20 @@ const PostList: React.FC = () => {
         setMarkdown(showPreview.content);
         setEditingPost(showPreview as typeof showPreview);
         if (showPreview.tags) {
-          if (Array.isArray(showPreview.tags)) setTags(showPreview.tags);
-          else setTags(showPreview.tags.split(',').map((t: string) => t.trim()).filter(Boolean));
-        } else setTags([]);
+          if (Array.isArray(showPreview.tags)) {
+            setTags(showPreview.tags);
+          } else if (typeof showPreview.tags === 'string') {
+            setTags(String(showPreview.tags).split(',').map(t => t.trim()).filter(Boolean));
+          }
+        } else {
+          setTags([]);
+        }
       } else if (pendingAction === 'delete' && showPreview) {
         await fetch('/api/posts', {
           method: 'DELETE',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ id: showPreview.id })
         });
-        setCreatedPosts(prev => prev.filter(post => post.id !== showPreview.id));
         setShowPreview(null);
       } else {
         // Trường hợp tạo mới bài viết
@@ -234,42 +282,36 @@ const PostList: React.FC = () => {
   }
 
   async function savePost() {
-    if (editingPost && editingPost.id) {
-      const res = await fetch('/api/posts', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          id: editingPost.id,
+    try {
+      if (editingPost && editingPost.id) {
+        const updatedPost = await updatePost({
+          ...editingPost,
           title,
           content: markdown,
           tags
-        })
-      });
-      const updatedPost = await res.json();
-      setCreatedPosts(prev =>
-        prev.map(post =>
-          post.id === editingPost.id ? updatedPost : post
-        )
-      );
-      setEditingPost(null);
-      setShowEditor(false);
-      setShowPreview(updatedPost);
+        });
+        await mutate(); // Revalidate posts data
+        setEditingPost(null);
+        setShowEditor(false);
+        setShowPreview(updatedPost);
+      } else {
+        const newPost = await createPost({
+          title,
+          content: markdown,
+          tags,
+          date: new Date().toISOString(),
+          id: Date.now().toString()
+        });
+        await mutate(); // Revalidate posts data
+        setShowEditor(false);
+        setShowPreview(newPost);
+      }
       setTitle('');
       setMarkdown('');
       setTags([]);
-    } else {
-      const res = await fetch('/api/posts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title, content: markdown, tags })
-      });
-      const newPost = await res.json();
-      setCreatedPosts(prev => [...prev, newPost]);
-      setShowEditor(false);
-      setShowPreview(newPost);
-      setTitle('');
-      setMarkdown('');
-      setTags([]);
+    } catch (error) {
+      console.error('Failed to save post:', error);
+      // Handle error (show error message to user)
     }
   }
 
@@ -286,31 +328,55 @@ const PostList: React.FC = () => {
            New Post
           </button>
         </div>
-        {createdPosts.length === 0 ? (
+        {data?.posts.length === 0 ? (
           <div className="text-center text-gray-400 text-lg py-20">Chưa có bài viết nào.</div>
         ) : (
           <div className="space-y-10">
-            {sortedYears.map(year => (
-              <div key={year !== 'unknown' ? year : `unknown-${Math.random()}`} className="flex gap-8">
-                <div className="min-w-[70px] text-2xl font-bold text-gray-400 pt-2 text-right select-none font-sans">{year}</div>
-                <ul className="flex-1 w-full">
-                  {postsByYear[year].map((post) => (
-                    <li
-                      key={post._id ?? post.id ?? post.title + post.date}
-                      className="flex items-center group cursor-pointer py-2 border-0 border-b border-dotted border-gray-300 dark:border-gray-700 transition"
-                    >
-                      <span
-                        className="flex-1 text-base font-normal text-gray-800 dark:text-gray-100 group-hover:text-pink-600 transition truncate font-sans"
-                        onClick={() => setShowPreview(post)}
-                      >
-                        {post.title}
-                      </span>
-                      <span className="text-sm text-gray-400 font-sans ml-4 min-w-[60px] text-right">{post.date ? new Date(post.date).toLocaleString('en-US', { month: 'short', day: 'numeric' }) : ''}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
+            {isLoading && page === 1 ? (
+              <LoadingSkeleton />
+            ) : error ? (
+              <div className="text-center text-red-500">Failed to load posts</div>
+            ) : (
+              <>
+                {sortedYears.map((year, yearIndex) => (
+                  <div key={year} className="flex gap-8">
+                    <div className="min-w-[70px] text-2xl font-bold text-gray-400 pt-2 text-right select-none font-sans">
+                      {year}
+                    </div>
+                    <ul className="flex-1 w-full">
+                      {postsByYear[year].map((post, postIndex) => (
+                        <li
+                          key={post._id ?? post.id}
+                          ref={
+                            yearIndex === sortedYears.length - 1 &&
+                            postIndex === postsByYear[year].length - 1
+                              ? lastPostElementRef
+                              : null
+                          }
+                          className="flex items-center group cursor-pointer py-2 border-0 border-b border-dotted border-gray-300 dark:border-gray-700 transition"
+                        >
+                          <span
+                            className="flex-1 text-base font-normal text-gray-800 dark:text-gray-100 group-hover:text-pink-600 transition truncate font-sans"
+                            onClick={() => setShowPreview(post)}
+                          >
+                            {post.title}
+                          </span>
+                          <span className="text-sm text-gray-400 font-sans ml-4 min-w-[60px] text-right">
+                            {post.date
+                              ? new Date(post.date).toLocaleString('en-US', {
+                                  month: 'short',
+                                  day: 'numeric',
+                                })
+                              : ''}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+                {isLoading && page > 1 && <LoadingSkeleton />}
+              </>
+            )}
           </div>
         )}
         <button className="mt-16 mx-auto block rounded-full px-8 py-3 bg-gradient-to-r from-gray-200 to-gray-300 dark:from-[#23232a] dark:to-[#18181b] text-gray-700 dark:text-gray-200 font-bold shadow hover:from-gray-300 hover:to-gray-400 dark:hover:from-[#18181b] dark:hover:to-[#23232a] transition text-lg">
