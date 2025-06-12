@@ -19,18 +19,25 @@ let client: MongoClient;
 let clientPromise: Promise<MongoClient>;
 
 declare global {
+  // eslint-disable-next-line no-var
   var _mongoClientPromise: Promise<MongoClient> | undefined;
 }
 
 if (process.env.NODE_ENV === "development") {
   if (!global._mongoClientPromise) {
     client = new MongoClient(uri, options);
-    global._mongoClientPromise = client.connect();
+    global._mongoClientPromise = client.connect().catch((error) => {
+      console.error("Failed to connect to MongoDB:", error);
+      throw error;
+    });
   }
-  clientPromise = global._mongoClientPromise!;
+  clientPromise = global._mongoClientPromise;
 } else {
   client = new MongoClient(uri, options);
-  clientPromise = client.connect();
+  clientPromise = client.connect().catch((error) => {
+    console.error("Failed to connect to MongoDB:", error);
+    throw error;
+  });
 }
 
 export default clientPromise;
